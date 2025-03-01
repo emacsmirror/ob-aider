@@ -3,11 +3,12 @@
 ;; Copyright (C) 2024 Free Software Foundation, Inc.
 
 ;; Author: Levi Strope <levi.strope@gmail.com>
+;; Maintainer: Levi Strope <levi.strope@gmail.com>
 ;; Keywords: literate programming, reproducible research, ai, aider
-;; URL: https://github.com/localredhead/ob-aider
+;; URL: https://github.com/localredhead/ob-aider.el
 ;; Version: 0.1.0
 ;; Package-Version: 0.1.0
-;; Package-Requires: ((emacs "27.1") (org "9.4") (aider "0.1.0"))
+;; Package-Requires: ((emacs "27.1") (org "9.4"))
 
 ;; This file is not part of GNU Emacs.
 
