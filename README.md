@@ -149,3 +149,4 @@ Special thanks to the developers of these tools for their contributions to the E
 
 - [aider.el](https://github.com/tninja/aider.el) for the Aider Emacs integration
 - [Org Babel](https://orgmode.org/worg/org-contrib/babel/) for the literate programming framework
+- This project was 100% developed with the assistance of Claude 3 Opus and Claude 3 Sonnet, demonstrating the potential of AI-assisted development
