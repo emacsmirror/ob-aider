@@ -203,15 +203,16 @@ PARAMS are the parameters specified in the Org source block."
 ;;;###autoload
 (with-eval-after-load 'ob
   ;; Define the variable if it doesn't exist yet
-  (unless (boundp 'org-babel-load-languages)
-    (defvar org-babel-load-languages nil))
+  (defvar org-babel-load-languages nil)
   
   ;; Only add our language if it's not already there
-  (unless (assq 'aider org-babel-load-languages)
-    (add-to-list 'org-babel-load-languages '(aider . t)))
+  (when (boundp 'org-babel-load-languages)
+    (unless (assq 'aider org-babel-load-languages)
+      (add-to-list 'org-babel-load-languages '(aider . t))))
   
   ;; Call the language loading function if available
-  (when (fboundp 'org-babel-do-load-languages)
+  (when (and (fboundp 'org-babel-do-load-languages)
+             (boundp 'org-babel-load-languages))
     (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)))
 
 ;;;###autoload
