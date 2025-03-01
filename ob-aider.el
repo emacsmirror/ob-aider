@@ -35,14 +35,31 @@
 ;; - Org mode 9.4 or later
 ;; - aider.el (https://github.com/tninja/aider.el)
 
+;;; Usage:
+
+;; Add to your Emacs configuration:
+;;
+;; (with-eval-after-load 'org
+;;   (org-babel-do-load-languages
+;;    'org-babel-load-languages
+;;    (append org-babel-load-languages
+;;            '((aider . t)))))
+;;
+;; Then create an Aider source block in your Org file:
+;;
+;; #+begin_src aider
+;; Your prompt to Aider here...
+;; #+end_src
+;;
+;; Execute the block with C-c C-c to send the prompt to the active Aider session.
+
 ;;; Code:
 (require 'ob)
 (require 'aider)
 
 (defgroup ob-aider nil
   "Org Babel functions for Aider.el integration."
-  :group 'org-babel
-  :prefix "ob-aider-")
+  :group 'org-babel)
 
 (defcustom ob-aider-timeout 60
   "Timeout in seconds for waiting for Aider responses."
@@ -56,52 +73,57 @@ Returns nil if no buffer is found."
     (when (and buffer (buffer-live-p buffer))
       buffer)))
 
-(defun ob-aider-send-prompt (prompt)
-  "Send PROMPT to the active Aider conversation buffer.
-Returns the buffer to which the prompt was sent, or nil if no buffer was found."
-  (let ((buffer (ob-aider-find-buffer)))
-    (when buffer
-      (with-current-buffer buffer
-        (goto-char (point-max))
-        (comint-send-string (get-buffer-process buffer) (concat prompt "\n")))
-      buffer)))
-
-(defun ob-aider-wait-for-response (buffer)
-  "Wait for a response in the Aider BUFFER.
-Returns the response text or nil if timeout occurs."
+(defun ob-aider-send-prompt (buffer prompt)
+  "Send PROMPT to Aider BUFFER and return the response."
   (with-current-buffer buffer
-    (let ((start-time (current-time))
-          (start-point (point-max))
-          (process (get-buffer-process buffer)))
-      (while (and (process-live-p process)
-                  (accept-process-output process 0.1)
-                  (< (float-time (time-since start-time)) ob-aider-timeout)
-                  (not (save-excursion
-                         (goto-char start-point)
-                         (re-search-forward comint-prompt-regexp nil t)))))
-      (if (< (float-time (time-since start-time)) ob-aider-timeout)
-          (save-excursion
-            (goto-char start-point)
-            (when (re-search-forward comint-prompt-regexp nil t)
-              (buffer-substring-no-properties start-point (match-beginning 0))))
-        (message "Timeout waiting for Aider response")
-        nil))))
+    (let ((proc (get-buffer-process buffer))
+          (comint-input-sender-no-newline nil)
+          (comint-input-sender (function comint-simple-send)))
+      (when proc
+        ;; Go to the end of the buffer
+        (goto-char (point-max))
+        ;; Record the current position as the start of our prompt
+        (let ((start-pos (point)))
+          ;; Send the prompt
+          (comint-send-string proc (concat prompt "\n"))
+          ;; Wait for response
+          (let ((timeout ob-aider-timeout)
+                (response-complete nil))
+            (while (and (> timeout 0) (not response-complete))
+              (sleep-for 1)
+              (setq timeout (1- timeout))
+              ;; Check if Aider has finished responding
+              ;; This is a heuristic - we look for the prompt pattern
+              (goto-char (point-max))
+              (setq response-complete 
+                    (save-excursion
+                      (forward-line -1)
+                      (looking-at-p "^aider> $"))))
+            ;; Extract the response
+            (if response-complete
+                (buffer-substring-no-properties 
+                 (+ start-pos (length prompt) 1) ; Skip past our prompt
+                 (save-excursion
+                   (goto-char (point-max))
+                   (forward-line -1)
+                   (point)))
+              (error "Timeout waiting for Aider response"))))))))
 
 ;;;###autoload
 (defun org-babel-execute:aider (body params)
   "Execute a block of Aider code with org-babel.
 This function is called by `org-babel-execute-src-block'.
 BODY contains the prompt to send to Aider.
-PARAMS are the parameters passed to the block."
-  (let ((buffer (ob-aider-send-prompt body)))
+PARAMS are the parameters specified in the Org source block."
+  (let ((buffer (ob-aider-find-buffer)))
     (if buffer
-        (or (ob-aider-wait-for-response buffer)
-            "No response received from Aider (timeout)")
-      "No active Aider conversation buffer found")))
+        (ob-aider-send-prompt buffer body)
+      (error "No active Aider conversation buffer found"))))
 
 ;; Register the language with Org Babel
-(add-to-list 'org-babel-load-languages '(aider . t))
-(org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
+;; Note: Users should enable this in their own config
+;; (add-to-list 'org-babel-load-languages '(aider . t))
+;; (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
 
 (provide 'ob-aider)
 ;;; ob-aider.el ends here
