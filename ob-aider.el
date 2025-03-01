@@ -61,7 +61,7 @@
 ;;; Code:
 (require 'ob)
 (require 'aider)
-(declare-function aider--find-conversation-buffer "aider")
+(require 'cl-lib)
 
 (defgroup ob-aider nil
   "Org Babel functions for Aider.el integration."
@@ -81,9 +81,13 @@
 (defun ob-aider-find-buffer ()
   "Find the active Aider conversation buffer.
 Returns nil if no buffer is found."
-  (let ((buffer (aider--find-conversation-buffer)))
-    (when (and buffer (buffer-live-p buffer))
-      buffer)))
+  (let ((buffer-list (buffer-list)))
+    (cl-find-if (lambda (buf)
+                  (with-current-buffer buf
+                    (and (eq major-mode 'comint-mode)
+                         (string-match-p "\\*aider\\*" (buffer-name buf))
+                         (get-buffer-process buf))))
+                buffer-list)))
 
 (defun ob-aider-find-response-end-marker (buffer)
   "Find the end of the most recent response in the Aider BUFFER."
