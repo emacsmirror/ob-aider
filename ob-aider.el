@@ -162,20 +162,10 @@ Returns nil if no buffer is found."
 This function is called by `org-babel-execute-src-block'.
 BODY contains the prompt to send to Aider.
 PARAMS are the parameters specified in the Org source block."
-  (let ((buffer (ob-aider-find-buffer))
-        (async (cdr (assq :async params))))
+  (let ((buffer (ob-aider-find-buffer)))
     (if buffer
-        (if async
-            (org-babel-execute:aider-async body params buffer)
-          ;; Get the raw response
-          (let ((result (ob-aider-send-prompt buffer body)))
-            ;; Return the result as a string, not as Lisp data
-            (org-babel-reassemble-table
-             result
-             (org-babel-pick-name (cdr (assq :colname-names params))
-                                 (cdr (assq :colnames params)))
-             (org-babel-pick-name (cdr (assq :rowname-names params))
-                                 (cdr (assq :rownames params))))))
+        ;; Always execute asynchronously
+        (org-babel-execute:aider-async body params buffer)
       (user-error "No active Aider conversation buffer found"))))
 
 (defun org-babel-execute:aider-async (body params buffer)
@@ -184,7 +174,7 @@ PARAMS are the parameters specified in the Org source block."
         (result-params (cdr (assq :result-params params)))
         (src-block-marker (copy-marker (point))))
     ;; Return a placeholder for async execution
-    (org-babel-insert-result "Executing asynchronously..." result-params)
+    (org-babel-insert-result "Executing asynchronously, see Aider buffer" result-params)
     
     ;; Send the prompt without waiting for response
     (with-current-buffer buffer
