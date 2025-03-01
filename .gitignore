@@ -15,3 +15,4 @@
 # Aider specific
 .aider*
 /ob-aider.org
+/.projectile
