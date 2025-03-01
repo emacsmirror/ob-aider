@@ -43,7 +43,7 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
 
 ```elisp
 (use-package ob-aider
-  :straight (:host github :repo "yourusername/ob-aider")
+  :straight (:host github :repo "localredhead/ob-aider")
   :after org
   :config
   (org-babel-do-load-languages
@@ -57,7 +57,7 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
 In your `~/.doom.d/packages.el` file, add:
 ```elisp
 (package! ob-aider
-  :recipe (:host github :repo "yourusername/ob-aider"))
+  :recipe (:host github :repo "localredhead/ob-aider"))
 ```
 
 In your `~/.doom.d/config.el` file, add:
