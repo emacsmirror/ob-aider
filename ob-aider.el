@@ -61,6 +61,7 @@
 ;;; Code:
 (require 'ob)
 (require 'aider)
+(declare-function aider--find-conversation-buffer "aider")
 
 (defgroup ob-aider nil
   "Org Babel functions for Aider.el integration."
@@ -154,9 +155,8 @@ PARAMS are the parameters specified in the Org source block."
       (user-error "No active Aider conversation buffer found"))))
 
 ;; Register the language with Org Babel
-;; Note: Users should enable this in their own config
-;; (add-to-list 'org-babel-load-languages '(aider . t))
-;; (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
+(add-to-list 'org-babel-load-languages '(aider . t))
+(org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
 
 ;;;###autoload
 (defun ob-aider-insert-source-block ()
