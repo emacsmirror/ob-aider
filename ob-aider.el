@@ -194,7 +194,9 @@ PARAMS are the parameters specified in the Org source block."
     nil))
 
 ;; Register the language with Org Babel
+;;;###autoload
 (add-to-list 'org-babel-load-languages '(aider . t))
+;;;###autoload
 (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
 
 ;;;###autoload
