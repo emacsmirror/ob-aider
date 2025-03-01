@@ -103,6 +103,24 @@ You can customize the behavior of `ob-aider` through the following variables:
 - **No active Aider conversation buffer found**: Make sure you have started an Aider session before executing an Aider source block.
 - **Response timeout**: If Aider takes longer than expected to respond, you can increase the `ob-aider-timeout` value.
 
+## Use Cases
+
+### GPTel + ob-aider: A Powerful Combination
+
+One of the most powerful workflows enabled by `ob-aider` is the combination with [GPTel](https://github.com/karthink/gptel) or similar Emacs LLM interfaces. This creates a seamless AI-assisted development environment:
+
+#### Integrated AI Workflow
+
+The combination of GPTel and ob-aider creates a synergistic workflow where:
+
+- **GPTel** helps you craft and refine prompts within your Org document
+- **ob-aider** sends those refined prompts to your Aider session for code generation and modification
+- **Org mode** documents the entire process in a single, executable document
+
+This workflow allows you to leverage different AI tools for their respective strengths - using a general-purpose LLM to help formulate effective prompts for the code-focused Aider tool. The entire conversation history, thought process, and resulting code changes are preserved in a single Org document that can be shared, revisited, or modified later.
+
+This integration transforms your Org documents into interactive AI-assisted development environments, where you can seamlessly move between brainstorming, prompt refinement, code generation, and documentation - all while maintaining a complete record of your development process.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
