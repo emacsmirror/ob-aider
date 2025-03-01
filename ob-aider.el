@@ -167,7 +167,16 @@ PARAMS are the parameters specified in the Org source block."
     (if buffer
         (if async
             (org-babel-execute:aider-async body params buffer)
-          (ob-aider-send-prompt buffer body))
+          ;; Return just the response string, not the raw Lisp data
+          (let ((result (ob-aider-send-prompt buffer body)))
+            (org-babel-result-cond (cdr (assq :result-params params))
+              result
+              (org-babel-reassemble-table 
+               result
+               (org-babel-pick-name (cdr (assq :colname-names params))
+                                   (cdr (assq :colnames params)))
+               (org-babel-pick-name (cdr (assq :rowname-names params))
+                                   (cdr (assq :rownames params)))))))
       (user-error "No active Aider conversation buffer found"))))
 
 (defun org-babel-execute:aider-async (body params buffer)
