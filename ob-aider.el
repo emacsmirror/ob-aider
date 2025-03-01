@@ -182,28 +182,20 @@ PARAMS are the parameters specified in the Org source block."
   "Asynchronously execute aider source block with BODY and PARAMS in BUFFER."
   (let ((callback (cdr (assq :post params)))
         (result-params (cdr (assq :result-params params)))
-        (result-type (cdr (assq :result-type params)))
         (src-block-marker (copy-marker (point))))
     ;; Return a placeholder for async execution
     (org-babel-insert-result "Executing asynchronously..." result-params)
     
-    ;; Schedule the actual execution
-    (run-with-timer
-     0 nil
-     (lambda ()
-       (let ((result (condition-case err
-                         (ob-aider-send-prompt buffer body)
-                       (quit "Aider prompt execution cancelled")
-                       (error (format "Error: %S" err)))))
-         ;; Update the results
-         (save-excursion
-           (goto-char src-block-marker)
-           (org-babel-remove-result)
-           (org-babel-insert-result result result-params))
-         
-         ;; Call the callback if provided
-         (when callback
-           (funcall (intern callback) result)))))
+    ;; Send the prompt without waiting for response
+    (with-current-buffer buffer
+      (let ((proc (get-buffer-process buffer)))
+        (unless proc
+          (error "No process found in Aider buffer"))
+        
+        ;; Go to the end of the buffer
+        (goto-char (point-max))
+        ;; Send the prompt
+        (comint-send-string proc (concat body "\n"))))
     
     ;; Return nil to prevent displaying internal details
     nil))
