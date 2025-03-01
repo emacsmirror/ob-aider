@@ -78,6 +78,11 @@
   :group 'ob-aider
   :type 'float)
 
+(defcustom ob-aider-default-async nil
+  "Whether to execute Aider blocks asynchronously by default."
+  :group 'ob-aider
+  :type 'boolean)
+
 (defun ob-aider-find-buffer ()
   "Find the active Aider conversation buffer.
 Returns nil if no buffer is found."
@@ -111,7 +116,11 @@ Returns nil if no buffer is found."
                                        (forward-line -1)
                                        (looking-at-p "^aider> ")))))
       (unless response-received
-        (sit-for ob-aider-response-delay)))
+        (sit-for ob-aider-response-delay)
+        ;; Allow user to cancel with C-g
+        (when quit-flag
+          (setq quit-flag nil)
+          (signal 'quit nil))))
     response-received))
 
 (defun ob-aider-extract-response (buffer start-marker)
@@ -153,10 +162,28 @@ Returns nil if no buffer is found."
 This function is called by `org-babel-execute-src-block'.
 BODY contains the prompt to send to Aider.
 PARAMS are the parameters specified in the Org source block."
-  (let ((buffer (ob-aider-find-buffer)))
+  (let ((buffer (ob-aider-find-buffer))
+        (async (or (assq :async params) ob-aider-default-async)))
     (if buffer
-        (ob-aider-send-prompt buffer body)
+        (if async
+            (org-babel-execute:aider-async body params buffer)
+          (ob-aider-send-prompt buffer body))
       (user-error "No active Aider conversation buffer found"))))
+
+(defun org-babel-execute:aider-async (body params buffer)
+  "Asynchronously execute aider source block with BODY and PARAMS in BUFFER."
+  (let ((callback (cdr (assq :post params)))
+        (result-params (cdr (assq :result-params params)))
+        (result-type (cdr (assq :result-type params))))
+    (run-with-timer
+     0 nil
+     (lambda ()
+       (let ((result (condition-case err
+                         (ob-aider-send-prompt buffer body)
+                       (quit "Aider prompt execution cancelled")
+                       (error (format "Error: %S" err)))))
+         (when callback
+           (funcall (intern callback) result)))))))
 
 ;; Register the language with Org Babel
 (add-to-list 'org-babel-load-languages '(aider . t))
