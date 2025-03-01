@@ -201,11 +201,23 @@ PARAMS are the parameters specified in the Org source block."
 
 ;; Register the language with Org Babel
 ;;;###autoload
-(with-eval-after-load 'org
-  (require 'ob)
-  (add-to-list 'org-babel-load-languages '(aider . t))
-  (when (fboundp 'org-babel-do-load-languages)
-    (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)))
+(with-eval-after-load 'ob
+  ;; Declare the variable to avoid void variable errors
+  (defvar org-babel-load-languages)
+  ;; Only modify if the variable exists and is bound
+  (when (boundp 'org-babel-load-languages)
+    (add-to-list 'org-babel-load-languages '(aider . t))
+    (when (fboundp 'org-babel-do-load-languages)
+      (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))))
+
+;;;###autoload
+(eval-after-load 'ob
+  '(progn
+     ;; Make sure we don't cause errors during autoloads
+     (declare-function org-babel-do-load-languages "ob" (arg1 arg2))
+     (defvar org-babel-load-languages nil)
+     (unless (alist-get 'aider org-babel-load-languages)
+       (add-to-list 'org-babel-load-languages '(aider . t)))))
 
 ;;;###autoload
 (defun ob-aider-insert-source-block ()
