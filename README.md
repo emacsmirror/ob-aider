@@ -54,27 +54,22 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
 
 ### For Doom Emacs users
 
-1. Clone this repository to your local machine:
-   ```bash
-   git clone https://github.com/yourusername/ob-aider.git ~/.doom.d/local/ob-aider
-   ```
+In your `~/.doom.d/packages.el` file, add:
+```elisp
+(package! ob-aider
+  :recipe (:host github :repo "yourusername/ob-aider"))
+```
 
-2. In your `~/.doom.d/packages.el` file, add:
-   ```elisp
-   (package! ob-aider
-     :recipe (:local-repo "local/ob-aider"))
-   ```
+In your `~/.doom.d/config.el` file, add:
+```elisp
+(use-package! ob-aider
+  :after org
+  :config
+  (add-to-list 'org-babel-load-languages '(aider . t))
+  (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
+```
 
-3. In your `~/.doom.d/config.el` file, add:
-   ```elisp
-   (use-package! ob-aider
-     :after org
-     :config
-     (add-to-list 'org-babel-load-languages '(aider . t))
-     (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
-   ```
-
-4. Run `doom sync` to install the package.
+Then run `doom sync` to install the package.
 
 ## Usage
 
