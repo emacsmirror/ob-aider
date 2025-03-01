@@ -163,7 +163,7 @@ This function is called by `org-babel-execute-src-block'.
 BODY contains the prompt to send to Aider.
 PARAMS are the parameters specified in the Org source block."
   (let ((buffer (ob-aider-find-buffer))
-        (async (or (assq :async params) ob-aider-default-async)))
+        (async (cdr (assq :async params))))
     (if buffer
         (if async
             (org-babel-execute:aider-async body params buffer)
@@ -182,7 +182,12 @@ PARAMS are the parameters specified in the Org source block."
   "Asynchronously execute aider source block with BODY and PARAMS in BUFFER."
   (let ((callback (cdr (assq :post params)))
         (result-params (cdr (assq :result-params params)))
-        (result-type (cdr (assq :result-type params))))
+        (result-type (cdr (assq :result-type params)))
+        (src-block-marker (copy-marker (point))))
+    ;; Return a placeholder for async execution
+    (org-babel-insert-result "Executing asynchronously..." result-params)
+    
+    ;; Schedule the actual execution
     (run-with-timer
      0 nil
      (lambda ()
@@ -190,8 +195,18 @@ PARAMS are the parameters specified in the Org source block."
                          (ob-aider-send-prompt buffer body)
                        (quit "Aider prompt execution cancelled")
                        (error (format "Error: %S" err)))))
+         ;; Update the results
+         (save-excursion
+           (goto-char src-block-marker)
+           (org-babel-remove-result)
+           (org-babel-insert-result result result-params))
+         
+         ;; Call the callback if provided
          (when callback
-           (funcall (intern callback) result)))))))
+           (funcall (intern callback) result)))))
+    
+    ;; Return nil to prevent displaying internal details
+    nil))
 
 ;; Register the language with Org Babel
 (add-to-list 'org-babel-load-languages '(aider . t))
