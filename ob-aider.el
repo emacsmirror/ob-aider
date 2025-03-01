@@ -85,7 +85,7 @@ Returns nil if no buffer is found."
     (cl-find-if (lambda (buf)
                   (with-current-buffer buf
                     (and (eq major-mode 'comint-mode)
-                         (string-match-p "\\*aider\\*" (buffer-name buf))
+                         (string-match-p "\\*aider:" (buffer-name buf))
                          (get-buffer-process buf))))
                 buffer-list)))
 
