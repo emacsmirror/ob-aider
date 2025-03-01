@@ -30,7 +30,7 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/levistrope/ob-aider.git
+   git clone https://github.com/localredhead/ob-aider.el.git
    ```
 
 2. Add the following to your Emacs configuration:
@@ -140,16 +140,6 @@ The combination of GPTel and ob-aider creates a synergistic workflow where:
 This workflow allows you to leverage different AI tools for their respective strengths - using a general-purpose LLM to help formulate effective prompts for the code-focused Aider tool. The entire conversation history, thought process, and resulting code changes are preserved in a single Org document that can be shared, revisited, or modified later.
 
 This integration transforms your Org documents into interactive AI-assisted development environments, where you can seamlessly move between brainstorming, prompt refinement, code generation, and documentation - all while maintaining a complete record of your development process.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## License
 
