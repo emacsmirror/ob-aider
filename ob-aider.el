@@ -206,9 +206,11 @@ PARAMS are the parameters specified in the Org source block."
   (defvar org-babel-load-languages nil)
   
   ;; Only add our language if it's not already there
-  (when (boundp 'org-babel-load-languages)
-    (unless (assq 'aider org-babel-load-languages)
-      (add-to-list 'org-babel-load-languages '(aider . t))))
+  ;; Use eval to avoid any variable access before it's fully defined
+  (eval '(when (boundp 'org-babel-load-languages)
+           (unless (assq 'aider org-babel-load-languages)
+             (setq org-babel-load-languages 
+                   (cons '(aider . t) org-babel-load-languages)))))
   
   ;; Call the language loading function if available
   (when (and (fboundp 'org-babel-do-load-languages)
