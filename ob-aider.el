@@ -4,7 +4,7 @@
 
 ;; Author: Levi Strope <levi.strope@gmail.com>
 ;; Keywords: literate programming, reproducible research, ai, aider
-;; URL: https://github.com/yourusername/ob-aider
+;; URL: https://github.com/levistrope/ob-aider
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "27.1") (org "9.4") (aider "0.1.0"))
 
@@ -162,10 +162,13 @@ Returns nil if no buffer is found."
 This function is called by `org-babel-execute-src-block'.
 BODY contains the prompt to send to Aider.
 PARAMS are the parameters specified in the Org source block."
-  (let ((buffer (ob-aider-find-buffer)))
+  (let ((buffer (ob-aider-find-buffer))
+        (async (cdr (assq :async params))))
     (if buffer
-        ;; Always execute asynchronously
-        (org-babel-execute:aider-async body params buffer)
+        (if async
+            (org-babel-execute:aider-async body params buffer)
+          ;; Synchronous execution
+          (ob-aider-send-prompt buffer body))
       (user-error "No active Aider conversation buffer found"))))
 
 (defun org-babel-execute:aider-async (body params buffer)

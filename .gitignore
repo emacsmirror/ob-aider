@@ -1,2 +1,17 @@
+# Compiled
+*.elc
+
+# Packaging
+.cask
+
+# Backup files
+*~
+\#*\#
+.\#*
+
+# Undo-tree save-files
+*.~undo-tree
+
+# Aider specific
 .aider*
 /ob-aider.org

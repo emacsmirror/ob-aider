@@ -19,11 +19,18 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
 
 ## Installation
 
+### MELPA (Coming Soon)
+
+```elisp
+(use-package ob-aider
+  :ensure t)
+```
+
 ### Manual Installation
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/ob-aider.git
+   git clone https://github.com/levistrope/ob-aider.git
    ```
 
 2. Add the following to your Emacs configuration:
@@ -43,7 +50,7 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
 
 ```elisp
 (use-package ob-aider
-  :straight (:host github :repo "localredhead/ob-aider.el")
+  :straight (:host github :repo "levistrope/ob-aider.el")
   :after org
   :config
   (org-babel-do-load-languages
@@ -57,7 +64,7 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
 In your `~/.doom.d/packages.el` file, add:
 ```elisp
 (package! ob-aider
-  :recipe (:host github :repo "localredhead/ob-aider.el"))
+  :recipe (:host github :repo "levistrope/ob-aider.el"))
 ```
 
 In your `~/.doom.d/config.el` file, add:
@@ -86,6 +93,16 @@ Then run `doom sync` to install the package.
 
 4. The response from Aider will be captured and displayed as the result of the source block.
 
+### Asynchronous Execution
+
+For long-running prompts, you can use asynchronous execution:
+
+```org
+#+begin_src aider :async t
+Your complex prompt here...
+#+end_src
+```
+
 ## Customization
 
 You can customize the behavior of `ob-aider` through the following variables:
@@ -96,6 +113,9 @@ You can customize the behavior of `ob-aider` through the following variables:
 
 ;; Set delay between checks for Aider response completion
 (setq ob-aider-response-delay 0.1)
+
+;; Set default async behavior
+(setq ob-aider-default-async nil)
 ```
 
 ## Troubleshooting
