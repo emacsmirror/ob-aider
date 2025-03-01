@@ -52,6 +52,30 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
            '((aider . t)))))
 ```
 
+### For Doom Emacs users
+
+1. Clone this repository to your local machine:
+   ```bash
+   git clone https://github.com/yourusername/ob-aider.git ~/.doom.d/local/ob-aider
+   ```
+
+2. In your `~/.doom.d/packages.el` file, add:
+   ```elisp
+   (package! ob-aider
+     :recipe (:local-repo "local/ob-aider"))
+   ```
+
+3. In your `~/.doom.d/config.el` file, add:
+   ```elisp
+   (use-package! ob-aider
+     :after org
+     :config
+     (add-to-list 'org-babel-load-languages '(aider . t))
+     (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
+   ```
+
+4. Run `doom sync` to install the package.
+
 ## Usage
 
 1. Start an Aider session using `M-x aider-start` or your preferred method.
@@ -74,6 +98,9 @@ You can customize the behavior of `ob-aider` through the following variables:
 ```elisp
 ;; Set timeout for waiting for Aider responses (in seconds)
 (setq ob-aider-timeout 60)
+
+;; Set delay between checks for Aider response completion
+(setq ob-aider-response-delay 0.1)
 ```
 
 ## Troubleshooting
