@@ -1,10 +1,10 @@
-# ob-aider
+# ob-aider.el
 
 An Org Babel library for sending prompts to an already running Aider.el comint buffer directly from Org mode source blocks.
 
 ## Overview
 
-`ob-aider` allows you to interact with [aider.el](https://github.com/tninja/aider.el) directly from Org mode documents. This enables you to:
+`ob-aider.el` allows you to interact with [aider.el](https://github.com/tninja/aider.el) directly from Org mode documents. This enables you to:
 
 - Document your AI-assisted coding sessions in Org mode
 - Send prompts to Aider from within your Org documents
@@ -43,7 +43,7 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
 
 ```elisp
 (use-package ob-aider
-  :straight (:host github :repo "localredhead/ob-aider")
+  :straight (:host github :repo "localredhead/ob-aider.el")
   :after org
   :config
   (org-babel-do-load-languages
@@ -57,7 +57,7 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
 In your `~/.doom.d/packages.el` file, add:
 ```elisp
 (package! ob-aider
-  :recipe (:host github :repo "localredhead/ob-aider"))
+  :recipe (:host github :repo "localredhead/ob-aider.el"))
 ```
 
 In your `~/.doom.d/config.el` file, add:
