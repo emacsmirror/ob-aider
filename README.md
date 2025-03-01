@@ -135,6 +135,16 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is licensed under the GPL-3.0 License - see the LICENSE file for details.
 
+## Credits and Thanks
+
+This project would not be possible without the following amazing tools:
+
+- [GPTel](https://github.com/karthink/gptel) - An elegant and efficient Emacs interface to OpenAI's GPT and other LLMs
+- [Aider.el](https://github.com/tninja/aider.el) - Emacs interface for Aider, the AI pair programming tool
+- [Org Mode](https://orgmode.org/) - For its incredible Babel framework that makes this integration possible
+
+Special thanks to the developers of these tools for their contributions to the Emacs ecosystem and for making AI-assisted development more accessible within our favorite editor.
+
 ## Acknowledgments
 
 - [aider.el](https://github.com/tninja/aider.el) for the Aider Emacs integration
