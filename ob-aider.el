@@ -62,8 +62,9 @@
 
 ;;; Code:
 (require 'ob)
-(require 'aider)
 (require 'cl-lib)
+;; Defer requiring aider until execution time
+(defvar aider-loaded nil)
 
 (defgroup ob-aider nil
   "Org Babel functions for Aider.el integration."
@@ -164,6 +165,9 @@ Returns nil if no buffer is found."
 This function is called by `org-babel-execute-src-block'.
 BODY contains the prompt to send to Aider.
 PARAMS are the parameters specified in the Org source block."
+  (unless aider-loaded
+    (require 'aider)
+    (setq aider-loaded t))
   (let ((buffer (ob-aider-find-buffer))
         (async (cdr (assq :async params))))
     (if buffer
@@ -197,11 +201,11 @@ PARAMS are the parameters specified in the Org source block."
 
 ;; Register the language with Org Babel
 ;;;###autoload
-(eval-after-load 'org
-  '(progn
-     (require 'ob)
-     (add-to-list 'org-babel-load-languages '(aider . t))
-     (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)))
+(with-eval-after-load 'org
+  (require 'ob)
+  (add-to-list 'org-babel-load-languages '(aider . t))
+  (when (fboundp 'org-babel-do-load-languages)
+    (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)))
 
 ;;;###autoload
 (defun ob-aider-insert-source-block ()
