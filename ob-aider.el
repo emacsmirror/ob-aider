@@ -6,6 +6,7 @@
 ;; Keywords: literate programming, reproducible research, ai, aider
 ;; URL: https://github.com/localredhead/ob-aider
 ;; Version: 0.1.0
+;; Package-Version: 0.1.0
 ;; Package-Requires: ((emacs "27.1") (org "9.4") (aider "0.1.0"))
 
 ;; This file is not part of GNU Emacs.
