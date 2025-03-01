@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2024 Free Software Foundation, Inc.
 
-;; Author: Your Name <your.email@example.com>
+;; Author: Levi Strope <levi.strope@gmail.com>
 ;; Keywords: literate programming, reproducible research, ai, aider
 ;; URL: https://github.com/yourusername/ob-aider
 ;; Version: 0.1.0
@@ -101,10 +101,10 @@ Returns nil if no buffer is found."
         (goto-char (point-max))
         ;; Check if the prompt indicator has appeared after our start marker
         (setq response-received (and (> (point) (marker-position start-marker))
-                                    (save-excursion
-                                      (goto-char (point-max))
-                                      (forward-line -1)
-                                      (looking-at-p "^aider> ")))))
+                                     (save-excursion
+                                       (goto-char (point-max))
+                                       (forward-line -1)
+                                       (looking-at-p "^aider> ")))))
       (unless response-received
         (sit-for ob-aider-response-delay)))
     response-received))
