@@ -4,11 +4,11 @@
 
 ;; Author: Levi Strope <levi.strope@gmail.com>
 ;; Maintainer: Levi Strope <levi.strope@gmail.com>
-;; Keywords: literate programming, reproducible research, ai, aider
+;; Keywords: tools, convenience, languages
 ;; URL: https://github.com/localredhead/ob-aider.el
 ;; Version: 0.1.0
 ;; Package-Version: 0.1.0
-;; Package-Requires: ((emacs "27.1") (org "9.4"))
+;; Package-Requires: ((emacs "27.1"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -64,7 +64,7 @@
 (require 'ob)
 (require 'cl-lib)
 ;; Defer requiring aider until execution time
-(defvar aider-loaded nil)
+(defvar ob-aider-loaded nil)
 
 (defgroup ob-aider nil
   "Org Babel functions for Aider.el integration."
@@ -165,9 +165,9 @@ Returns nil if no buffer is found."
 This function is called by `org-babel-execute-src-block'.
 BODY contains the prompt to send to Aider.
 PARAMS are the parameters specified in the Org source block."
-  (unless aider-loaded
+  (unless ob-aider-loaded
     (require 'aider)
-    (setq aider-loaded t))
+    (setq ob-aider-loaded t))
   (let ((buffer (ob-aider-find-buffer))
         (async (cdr (assq :async params))))
     (if buffer
