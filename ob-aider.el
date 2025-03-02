@@ -179,9 +179,12 @@ PARAMS are the parameters specified in the Org source block."
 
 (defun org-babel-execute:aider-async (body params buffer)
   "Asynchronously execute aider source block with BODY and PARAMS in BUFFER."
-  (let ((callback (cdr (assq :post params)))
-        (result-params (cdr (assq :result-params params)))
-        (src-block-marker (copy-marker (point))))
+  (let ((callback (cdr (assq :post params)))      ; For future implementation
+        (src-block-marker (copy-marker (point)))  ; For future implementation
+        (result-params (cdr (assq :result-params params))))
+    ;; Prevent byte-compiler warnings
+    (ignore callback src-block-marker)
+    
     ;; Return a placeholder for async execution
     (org-babel-insert-result "Executing asynchronously, see Aider buffer" result-params)
     
