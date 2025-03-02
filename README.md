@@ -11,6 +11,8 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
 - Capture Aider's responses as results in your Org document
 - Create reproducible AI-assisted coding workflows
 
+[[./screengif.gif][Screen Recording]]
+
 ## Requirements
 
 - Emacs 27.1 or later
