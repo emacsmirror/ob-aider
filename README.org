@@ -1,7 +1,3 @@
-#+TITLE: ob-aider.el
-#+AUTHOR: Levi Strope
-#+EMAIL: levi.strope@gmail.com
-
 * ob-aider.el
 
 An Org Babel library for sending prompts to an already running Aider.el comint buffer directly from Org mode source blocks.
@@ -14,6 +10,8 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
 - Send prompts to Aider from within your Org documents
 - Capture Aider's responses as results in your Org document
 - Create reproducible AI-assisted coding workflows
+
+[[file:./screengif.gif]]
 
 ** Requirements
 
