@@ -105,7 +105,7 @@ Returns nil if no buffer is found."
       (point-marker))))
 
 (defun ob-aider-wait-for-response (buffer start-marker)
-  "Wait for a response in BUFFER after START-MARKER for up to `ob-aider-timeout` seconds."
+  "Wait for response in BUFFER after START-MARKER for `ob-aider-timeout` secs."
   (let ((end-time (+ (float-time) ob-aider-timeout))
         (response-received nil))
     (while (and (not response-received)
