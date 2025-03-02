@@ -199,23 +199,6 @@ PARAMS are the parameters specified in the Org source block."
     ;; Return nil to prevent displaying internal details
     nil))
 
-;; Register the language with Org Babel
-;;;###autoload
-(with-eval-after-load 'ob
-  ;; Define the variable if it doesn't exist yet
-  (defvar org-babel-load-languages nil)
-  
-  ;; Only add our language if it's not already there
-  ;; Use eval to avoid any variable access before it's fully defined
-  (eval '(when (boundp 'org-babel-load-languages)
-           (unless (assq 'aider org-babel-load-languages)
-             (setq org-babel-load-languages 
-                   (cons '(aider . t) org-babel-load-languages)))))
-  
-  ;; Call the language loading function if available
-  (when (and (fboundp 'org-babel-do-load-languages)
-             (boundp 'org-babel-load-languages))
-    (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)))
 
 ;;;###autoload
 (defun ob-aider-insert-source-block ()
