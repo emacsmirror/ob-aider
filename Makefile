@@ -3,7 +3,7 @@ EMACS ?= emacs
 all: test
 
 test: clean-elc
-	${EMACS} -Q -batch -L . -l ob-aider.el -l ob-aider-tests.el -f ert-run-tests-batch-and-exit
+	${EMACS} -Q -batch -L . -L test -l ob-aider.el -l test/ob-aider-test.el -f ert-run-tests-batch-and-exit
 
 lint: clean-elc
 	${EMACS} -Q -batch --eval "(progn \
