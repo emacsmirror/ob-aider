@@ -17,7 +17,11 @@ fi
 
 # Byte-compile the package
 echo "Byte-compiling ob-aider.el..."
-emacs -Q --batch -f batch-byte-compile ob-aider.el
+emacs -Q --batch -L . -f batch-byte-compile ob-aider.el
+
+# Run tests to verify installation
+echo "Running tests..."
+make test
 
 echo "Installation complete!"
 echo "To use ob-aider.el, add the following to your Emacs configuration:"
