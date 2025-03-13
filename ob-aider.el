@@ -1,7 +1,5 @@
 ;;; ob-aider.el --- Org Babel functions for Aider.el integration -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2024 Levi Strope
-
 ;; Author: Levi Strope <levi.strope@gmail.com>
 ;; Maintainer: Levi Strope <levi.strope@gmail.com>
 ;; Keywords: tools, convenience, languages, org, processes

@@ -1,7 +1,5 @@
 ;;; ob-aider-test.el --- Tests for ob-aider.el -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2024 Levi Strope
-
 ;; Author: Levi Strope <levi.strope@gmail.com>
 
 ;; This file is not part of GNU Emacs.
