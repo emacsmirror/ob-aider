@@ -3,11 +3,13 @@
 
 # Packaging
 .cask
+dist/
 
 # Backup files
 *~
 \#*\#
 .\#*
+auto-save-list
 
 # Undo-tree save-files
 *.~undo-tree

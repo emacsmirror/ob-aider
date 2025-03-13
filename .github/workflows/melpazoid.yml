@@ -1,0 +1,33 @@
+# Checks using Melpazoid for MELPA compatibility
+name: Melpazoid
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - '**.org'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - '**.org'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: purcell/setup-emacs@master
+      with:
+        version: 29.1
+    - uses: conao3/setup-cask@master
+
+    # Run Melpazoid checks
+    - name: Run Melpazoid
+      uses: riscy/melpazoid@master
+      env:
+        # Only check files that are included in the package
+        EMACS_LINT_IGNORE: '.*'
+        # The file to check
+        FILE: 'ob-aider.el'
+        # Extra dependencies
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
