@@ -1,33 +1,31 @@
-# Checks using Melpazoid for MELPA compatibility
-name: Melpazoid
+# melpazoid <https://github.com/riscy/melpazoid> build checks.
 
-on:
-  push:
-    paths-ignore:
-      - '**.md'
-      - '**.org'
-  pull_request:
-    paths-ignore:
-      - '**.md'
-      - '**.org'
+# If your package is on GitHub, enable melpazoid's checks by copying this file
+# to .github/workflows/melpazoid.yml and modifying RECIPE and EXIST_OK below.
+
+name: melpazoid
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: purcell/setup-emacs@master
-      with:
-        version: 29.1
-    - uses: conao3/setup-cask@master
-
-    # Run Melpazoid checks
-    - name: Run Melpazoid
-      uses: riscy/melpazoid@master
-      env:
-        # Only check files that are included in the package
-        EMACS_LINT_IGNORE: '.*'
-        # The file to check
-        FILE: 'ob-aider.el'
-        # Extra dependencies
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          sudo apt-get install emacs && emacs --version
+          git clone https://github.com/riscy/melpazoid.git ~/melpazoid
+          pip install ~/melpazoid
+      - name: Run
+        env:
+          LOCAL_REPO: ${{ github.workspace }}
+          # RECIPE is your recipe as written for MELPA:
+          RECIPE: (shx :fetcher github :repo "localredhead/ob-aider.el")
+          # set this to false (or remove it) if the package isn't on MELPA:
+          EXIST_OK: false
+        run: echo $GITHUB_REF && make -C ~/melpazoid

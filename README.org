@@ -8,7 +8,6 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
 
 - Document your AI-assisted coding sessions in Org mode
 - Send prompts to Aider from within your Org documents
-- Capture Aider's responses as results in your Org document
 - Create reproducible AI-assisted coding workflows
 
 [[file:./screengif.gif]]
@@ -85,12 +84,11 @@ Then run =doom sync= to install the package.
 1. Start an Aider session using =M-x aider-start= or your preferred method.
 
 2. In your Org document, create an Aider source block:
-   #+begin_src org
+#+begin_quote
    #+begin_src aider
    Please refactor this function to be more efficient...
    #+end_src
-   #+end_src
-
+#+end_quote
 3. Execute the block with =C-c C-c= to send the prompt to the active Aider session.
 
 4. The response from Aider will be captured and displayed as the result of the source block.
@@ -99,12 +97,11 @@ Then run =doom sync= to install the package.
 
 For long-running prompts, you can use asynchronous execution:
 
-#+begin_src org
-#+begin_src aider :async t
-Your complex prompt here...
-#+end_src
-#+end_src
-
+#+begin_quote
+   #+begin_src aider :async t
+   Your complex prompt here...
+   #+end_src
+#+end_quote
 ** Customization
 
 You can customize the behavior of =ob-aider= through the following variables:
