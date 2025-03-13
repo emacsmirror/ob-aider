@@ -1,12 +1,28 @@
 ;;; ob-aider.el --- Org Babel functions for Aider.el integration -*- lexical-binding: t; -*-
 
+;; Copyright (C) 2024 Levi Strope
+
 ;; Author: Levi Strope <levi.strope@gmail.com>
 ;; Maintainer: Levi Strope <levi.strope@gmail.com>
-;; Keywords: tools, convenience, languages
+;; Keywords: tools, convenience, languages, org, processes
 ;; URL: https://github.com/localredhead/ob-aider.el
 ;; Version: 0.1.0
-;; Package-Version: 0.1.0
-;; Package-Requires: ((emacs "27.1"))
+;; Package-Requires: ((emacs "27.1") (org "9.4"))
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+;;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;;; Commentary:
 
@@ -75,7 +91,7 @@ Returns nil if no buffer is found."
   (let ((buffer-list (buffer-list)))
     (cl-find-if (lambda (buf)
                   (with-current-buffer buf
-                    (and (eq major-mode 'comint-mode)
+                    (and (derived-mode-p 'comint-mode)
                          (string-match-p "\\*aider:" (buffer-name buf))
                          (get-buffer-process buf))))
                 buffer-list)))
@@ -161,13 +177,9 @@ PARAMS are the parameters specified in the Org source block."
       (user-error "No active Aider conversation buffer found"))))
 
 (defun org-babel-execute:aider-async (body params buffer)
-  "Asynchronously execute aider source block with BODY and PARAMS in BUFFER."
-  (let ((callback (cdr (assq :post params)))      ; For future implementation
-        (src-block-marker (copy-marker (point)))  ; For future implementation
-        (result-params (cdr (assq :result-params params))))
-    ;; Prevent byte-compiler warnings
-    (ignore callback src-block-marker)
-    
+  "Execute aider source block asynchronously.
+BODY contains the prompt text, PARAMS are block parameters, BUFFER is the aider buffer."
+  (let ((result-params (cdr (assq :result-params params))))
     ;; Return a placeholder for async execution
     (org-babel-insert-result "Executing asynchronously, see Aider buffer" result-params)
     

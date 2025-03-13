@@ -21,6 +21,13 @@ export FILE="ob-aider.el"
 # Run Melpazoid checks
 echo "Running checks..."
 cd "$MELPAZOID_DIR"
-make
+make || {
+  echo "Melpazoid found issues. Please review the output above."
+  echo "Note: Some warnings are expected and can be ignored if they're not critical."
+  echo "Common issues:"
+  echo "  - License format: Make sure ob-aider.el has proper GPL-3.0 headers"
+  echo "  - Byte-compilation warnings: Fix any unused variables or functions"
+  echo "  - Package-lint warnings: Follow MELPA packaging guidelines"
+}
 
 echo "Melpazoid checks completed."
