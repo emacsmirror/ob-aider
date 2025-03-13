@@ -140,10 +140,6 @@ This workflow allows you to leverage different AI tools for their respective str
 
 This integration transforms your Org documents into interactive AI-assisted development environments, where you can seamlessly move between brainstorming, prompt refinement, code generation, and documentation - all while maintaining a complete record of your development process.
 
-** License
-
-This project is licensed under the GPL-3.0 License - see the LICENSE file for details.
-
 ** Credits and Thanks
 
 This project would not be possible without the following amazing tools:
