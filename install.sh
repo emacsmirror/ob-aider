@@ -1,7 +1,9 @@
 #!/bin/bash
 
-# Simple installation script for ob-aider.el
+# Installation script for ob-aider.el
 # This script helps set up the project without requiring Cask
+
+set -e
 
 echo "Setting up ob-aider.el..."
 
@@ -14,6 +16,20 @@ if ! command -v emacs &> /dev/null; then
     echo "Error: Emacs is not installed or not in PATH"
     exit 1
 fi
+
+# Install package-lint if needed
+if ! emacs -Q --batch --eval "(require 'package-lint nil t)" 2>/dev/null; then
+    echo "Installing package-lint..."
+    emacs -Q --batch --eval "(progn \
+        (require 'package) \
+        (add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\") t) \
+        (package-initialize) \
+        (package-refresh-contents) \
+        (package-install 'package-lint))"
+fi
+
+# Make melpazoid-check.sh executable
+chmod +x melpazoid-check.sh
 
 # Byte-compile the package
 echo "Byte-compiling ob-aider.el..."
@@ -34,4 +50,8 @@ echo "   'org-babel-load-languages"
 echo "   (append org-babel-load-languages"
 echo "           '((aider . t)))))"
 echo ""
-echo "Run tests with: make test"
+echo "Available commands:"
+echo "  make test      - Run unit tests"
+echo "  make lint      - Run package-lint checks"
+echo "  make melpazoid - Run Melpazoid checks"
+echo "  make check     - Run all checks"
