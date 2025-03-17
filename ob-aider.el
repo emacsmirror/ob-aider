@@ -31,14 +31,14 @@
 ;; sessions within Org mode documents, making it easier to create
 ;; reproducible workflows and tutorials.
 
-;;; Requirements:
-
+;; Requirements:
+;;
 ;; - Emacs 27.1 or later
 ;; - Org mode 9.4 or later
 ;; - aider.el (https://github.com/tninja/aider.el)
 
-;;; Usage:
-
+;; Usage:
+;;
 ;; Add to your Emacs configuration:
 ;;
 ;; (with-eval-after-load 'org
@@ -60,7 +60,7 @@
 (require 'ob)
 (require 'cl-lib)
 ;; Defer requiring aider until execution time
-(defvar ob-aider-loaded nil)
+(defvar ob-aider-loaded-flag nil)
 
 (defgroup ob-aider nil
   "Org Babel functions for Aider.el integration."
@@ -161,9 +161,9 @@ Returns nil if no buffer is found."
 This function is called by `org-babel-execute-src-block'.
 BODY contains the prompt to send to Aider.
 PARAMS are the parameters specified in the Org source block."
-  (unless ob-aider-loaded
+  (unless ob-aider-loaded-flag
     (require 'aider)
-    (setq ob-aider-loaded t))
+    (setq ob-aider-loaded-flag t))
   (let ((buffer (ob-aider-find-buffer))
         (async (cdr (assq :async params))))
     (if buffer
@@ -175,8 +175,8 @@ PARAMS are the parameters specified in the Org source block."
 
 (defun org-babel-execute:aider-async (body params buffer)
   "Execute aider source block asynchronously.
-BODY contains the prompt text, PARAMS are block parameters,
-BUFFER is the aider buffer."
+BODY contains the prompt text, PARAMS are block parameters, BUFFER is the
+aider buffer."
   (let ((result-params (cdr (assq :result-params params))))
     ;; Return a placeholder for async execution
     (org-babel-insert-result "Executing asynchronously, see Aider buffer" result-params)
