@@ -34,6 +34,7 @@
 ;; Add more basic tests that don't require an active aider session
 (ert-deftest ob-aider-test-variables ()
   "Test that variables are properly defined."
+  (should (boundp 'ob-aider-loaded-flag))
   (should (boundp 'ob-aider-timeout))
   (should (boundp 'ob-aider-response-delay))
   (should (boundp 'ob-aider-default-async)))
