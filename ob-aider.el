@@ -82,16 +82,65 @@
   :group 'ob-aider
   :type 'boolean)
 
+(defcustom ob-aider-buffer nil
+  "Manually specified Aider buffer to use.
+When set, this buffer will be used instead of auto-detection."
+  :group 'ob-aider
+  :type '(choice (const :tag "Auto-detect" nil)
+                 (string :tag "Buffer name")))
+
 (defun ob-aider-find-buffer ()
   "Find the active Aider conversation buffer.
 Returns nil if no buffer is found."
-  (let ((buffer-list (buffer-list)))
-    (cl-find-if (lambda (buf)
-                  (with-current-buffer buf
-                    (and (derived-mode-p 'comint-mode)
-                         (string-match-p "\\*aider:" (buffer-name buf))
-                         (get-buffer-process buf))))
-                buffer-list)))
+  ;; First check if a buffer has been manually specified
+  (if (and ob-aider-buffer (get-buffer ob-aider-buffer))
+      (get-buffer ob-aider-buffer)
+    ;; Otherwise try to auto-detect
+    (let ((buffer-list (buffer-list)))
+      (cl-find-if (lambda (buf)
+                    (with-current-buffer buf
+                      (let ((buf-name (buffer-name buf)))
+                        (and (derived-mode-p 'comint-mode)
+                             (get-buffer-process buf)
+                             (or (string-match-p "\\*aider:" buf-name)
+                                 (string-match-p "aider:/Users/" buf-name)
+                                 (string-match-p "aider" buf-name))))))
+                  buffer-list))))
+
+(defun ob-aider-set-buffer (buffer)
+  "Set the Aider BUFFER to use for ob-aider commands."
+  (interactive
+   (list (read-buffer "Select Aider buffer: " nil t
+                      (lambda (buf)
+                        (with-current-buffer buf
+                          (derived-mode-p 'comint-mode))))))
+  (setq ob-aider-buffer buffer)
+  (message "Set ob-aider to use buffer: %s" buffer))
+
+(defun ob-aider-debug-buffers ()
+  "Print debug information about potential Aider buffers."
+  (interactive)
+  (let ((comint-buffers (cl-remove-if-not 
+                         (lambda (buf) 
+                           (with-current-buffer buf 
+                             (derived-mode-p 'comint-mode)))
+                         (buffer-list))))
+    (with-current-buffer (get-buffer-create "*ob-aider-debug*")
+      (erase-buffer)
+      (insert "Comint buffers:\n\n")
+      (dolist (buf comint-buffers)
+        (let ((buf-name (buffer-name buf)))
+          (insert (format "Buffer: %s\n" buf-name))
+          (insert (format "  Process: %s\n" 
+                          (if (get-buffer-process buf) "Yes" "No")))
+          (insert (format "  Contains 'aider': %s\n" 
+                          (if (string-match-p "aider" buf-name) "Yes" "No")))
+          (insert (format "  Matches '*aider:': %s\n" 
+                          (if (string-match-p "\\*aider:" buf-name) "Yes" "No")))
+          (insert (format "  Matches 'aider:/Users/': %s\n" 
+                          (if (string-match-p "aider:/Users/" buf-name) "Yes" "No")))
+          (insert "\n")))
+      (display-buffer (current-buffer)))))
 
 (defun ob-aider-find-response-end-marker (buffer)
   "Find the end of the most recent response in the Aider BUFFER."
