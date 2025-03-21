@@ -60,7 +60,7 @@
 (require 'ob)
 (require 'cl-lib)
 ;; Defer requiring aider until execution time
-(defvar ob-aider-loaded-flag nil)
+(defvar ob-aider-loaded nil)
 
 (defgroup ob-aider nil
   "Org Babel functions for Aider.el integration."
@@ -81,16 +81,20 @@ When set, this buffer will be used instead of auto-detection."
 (defun ob-aider-find-buffer ()
   "Find the active Aider conversation buffer.
 Returns nil if no buffer is found."
-  (let ((buffer-list (buffer-list)))
-    (cl-find-if (lambda (buf)
-                  (with-current-buffer buf
-                    (let ((buf-name (buffer-name buf)))
-                      (and (derived-mode-p 'comint-mode)
-                           (get-buffer-process buf)
-                           (or (string-match-p "\\*aider:" buf-name)
-                               (string-match-p "aider:/Users/" buf-name)
-                               (string-match-p "aider" buf-name))))))
-                buffer-list)))
+  (if ob-aider-buffer
+      ;; Use the manually specified buffer if it exists
+      (get-buffer ob-aider-buffer)
+    ;; Otherwise, try to auto-detect
+    (let ((buffer-list (buffer-list)))
+      (cl-find-if (lambda (buf)
+                    (with-current-buffer buf
+                      (let ((buf-name (buffer-name buf)))
+                        (and (derived-mode-p 'comint-mode)
+                             (get-buffer-process buf)
+                             (or (string-match-p "\\*aider:" buf-name)
+                                 (string-match-p "aider:/Users/" buf-name)
+                                 (string-match-p "aider" buf-name))))))
+                  buffer-list))))
 
 ;; These functions are no longer needed since we're not waiting for responses
 
@@ -117,23 +121,69 @@ This is a non-blocking implementation that returns immediately."
       ;; Return a message indicating the prompt was sent
       "Prompt sent to Aider buffer. Check the buffer for response.")))
 
+(defun ob-aider-wait-for-response (buffer)
+  "Wait for and capture a response from Aider in BUFFER.
+Returns the response text."
+  (with-current-buffer buffer
+    (let ((start-point (point-max))
+          (timeout 60)  ; Timeout in seconds
+          (check-interval 0.5)
+          (response-complete nil)
+          response)
+      
+      ;; Mark the starting point for capturing the response
+      (goto-char start-point)
+      (let ((start-time (current-time)))
+        ;; Wait until we detect the response is complete or timeout
+        (while (and (not response-complete)
+                    (< (float-time (time-subtract (current-time) start-time)) timeout))
+          ;; Sleep for a short interval
+          (sleep-for check-interval)
+          
+          ;; Check if response is complete (when Aider shows its prompt again)
+          (goto-char (point-max))
+          (if (re-search-backward "^aider> " start-point t)
+              (setq response-complete t)))
+        
+        ;; Extract the response text
+        (goto-char start-point)
+        (if response-complete
+            (progn
+              (let ((end-point (re-search-forward "^aider> " nil t)))
+                (setq response (buffer-substring-no-properties start-point (if end-point (match-beginning 0) (point-max))))
+                ;; Clean up the response
+                (setq response (string-trim response))))
+          ;; If we timed out
+          (setq response (format "Response timeout after %d seconds. Check the Aider buffer for the complete response." timeout))))
+      response)))
+
 ;;;###autoload
 (defun org-babel-execute:aider (body params)
   "Execute a block of Aider code with org-babel.
 This function is called by `org-babel-execute-src-block'.
 BODY contains the prompt to send to Aider.
 PARAMS are the parameters specified in the Org source block."
-  (unless ob-aider-loaded-flag
+  (unless ob-aider-loaded
     (require 'aider)
     (setq ob-aider-loaded t))
 
-  (let ((buffer (ob-aider-find-buffer)))
+  (let* ((buffer (ob-aider-find-buffer))
+         (wait (cdr (assq :wait params)))
+         (result-params (cdr (assq :result-params params))))
+    
     (unless buffer
       (user-error "No active Aider conversation buffer found"))
 
-    ;; Non-blocking execution
     (message "Sending prompt to Aider buffer: %s" (buffer-name buffer))
-    (ob-aider-send-prompt buffer body)))
+    (ob-aider-send-prompt buffer body)
+    
+    ;; If :wait is set to yes, wait for and return the response
+    (if (and wait (string= (downcase wait) "yes"))
+        (progn
+          (message "Waiting for Aider response...")
+          (ob-aider-wait-for-response buffer))
+      ;; Otherwise just return a message
+      "Prompt sent to Aider buffer. Check the buffer for response.")))
 
 ;; Removed async function as it's no longer needed
 
@@ -142,7 +192,7 @@ PARAMS are the parameters specified in the Org source block."
 (defun ob-aider-insert-source-block ()
   "Insert an Aider source block at point."
   (interactive)
-  (insert "#+begin_src aider\n\n#+end_src")
+  (insert "#+begin_src aider :wait yes\n\n#+end_src")
   (forward-line -1))
 
 (provide 'ob-aider)

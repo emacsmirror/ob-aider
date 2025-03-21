@@ -85,13 +85,20 @@ Then run =doom sync= to install the package.
 
 2. In your Org document, create an Aider source block:
 #+begin_quote
-   #+begin_src aider
+   #+begin_src aider :wait yes
    Please refactor this function to be more efficient...
    #+end_src
 #+end_quote
 3. Execute the block with =C-c C-c= to send the prompt to the active Aider session.
 
 4. The response from Aider will be captured and displayed as the result of the source block.
+
+   You can also use `:wait no` to send the prompt without waiting for a response:
+#+begin_quote
+   #+begin_src aider :wait no
+   Please refactor this function to be more efficient...
+   #+end_src
+#+end_quote
 
 ** Troubleshooting
 
