@@ -110,10 +110,10 @@ This is a non-blocking implementation that returns immediately."
       (goto-char (point-max))
       
       ;; Format multi-line prompts properly using the tag format
-      ;; If the prompt contains newlines, wrap it with {ob-aider and ob-aider}
+      ;; If the prompt contains newlines, wrap it with {aider and aider}
       (let ((formatted-prompt 
              (if (string-match-p "\n" prompt)
-                 (concat "{ob-aider\n" prompt "\nob-aider}")
+                 (concat "{aider\n" prompt "\naider}")
                prompt)))
         ;; Send the prompt
         (comint-send-string proc (concat formatted-prompt "\n")))
@@ -121,41 +121,6 @@ This is a non-blocking implementation that returns immediately."
       ;; Return a message indicating the prompt was sent
       "Prompt sent to Aider buffer. Check the buffer for response.")))
 
-(defun ob-aider-wait-for-response (buffer)
-  "Wait for and capture a response from Aider in BUFFER.
-Returns the response text."
-  (with-current-buffer buffer
-    (let ((start-point (point-max))
-          (timeout 60)  ; Timeout in seconds
-          (check-interval 0.5)
-          (response-complete nil)
-          response)
-      
-      ;; Mark the starting point for capturing the response
-      (goto-char start-point)
-      (let ((start-time (current-time)))
-        ;; Wait until we detect the response is complete or timeout
-        (while (and (not response-complete)
-                    (< (float-time (time-subtract (current-time) start-time)) timeout))
-          ;; Sleep for a short interval
-          (sleep-for check-interval)
-          
-          ;; Check if response is complete (when Aider shows its prompt again)
-          (goto-char (point-max))
-          (if (re-search-backward "^aider> " start-point t)
-              (setq response-complete t)))
-        
-        ;; Extract the response text
-        (goto-char start-point)
-        (if response-complete
-            (progn
-              (let ((end-point (re-search-forward "^aider> " nil t)))
-                (setq response (buffer-substring-no-properties start-point (if end-point (match-beginning 0) (point-max))))
-                ;; Clean up the response
-                (setq response (string-trim response))))
-          ;; If we timed out
-          (setq response (format "Response timeout after %d seconds. Check the Aider buffer for the complete response." timeout))))
-      response)))
 
 ;;;###autoload
 (defun org-babel-execute:aider (body params)
@@ -168,7 +133,6 @@ PARAMS are the parameters specified in the Org source block."
     (setq ob-aider-loaded t))
 
   (let* ((buffer (ob-aider-find-buffer))
-         (wait (cdr (assq :wait params)))
          (result-params (cdr (assq :result-params params))))
     
     (unless buffer
@@ -177,13 +141,8 @@ PARAMS are the parameters specified in the Org source block."
     (message "Sending prompt to Aider buffer: %s" (buffer-name buffer))
     (ob-aider-send-prompt buffer body)
     
-    ;; If :wait is set to yes, wait for and return the response
-    (if (and wait (string= (downcase wait) "yes"))
-        (progn
-          (message "Waiting for Aider response...")
-          (ob-aider-wait-for-response buffer))
-      ;; Otherwise just return a message
-      "Prompt sent to Aider buffer. Check the buffer for response.")))
+    ;; Return a message
+    "Prompt sent to Aider buffer. Check the buffer for response."))
 
 ;; Removed async function as it's no longer needed
 
@@ -192,7 +151,7 @@ PARAMS are the parameters specified in the Org source block."
 (defun ob-aider-insert-source-block ()
   "Insert an Aider source block at point."
   (interactive)
-  (insert "#+begin_src aider :wait yes\n\n#+end_src")
+  (insert "#+begin_src aider\n\n#+end_src")
   (forward-line -1))
 
 (provide 'ob-aider)

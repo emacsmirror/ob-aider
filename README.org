@@ -9,6 +9,7 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
 - Document your AI-assisted coding sessions in Org mode
 - Send prompts to Aider from within your Org documents
 - Create reproducible AI-assisted coding workflows
+- Utilize GPtel to write prompts to send to Aider.
 
 [[file:./screengif.gif]]
 
@@ -19,13 +20,6 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
 - [[https://github.com/tninja/aider.el][aider.el]]
 
 ** Installation
-
-*** MELPA (Coming Soon)
-
-#+begin_src elisp
-(use-package ob-aider
-  :ensure t)
-#+end_src
 
 *** Manual Installation
 
@@ -63,12 +57,19 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
 *** For Doom Emacs users
 
 In your =~/.doom.d/packages.el= file, add:
+
+If using melpa:
+#+begin_src elisp
+(package! ob-aider)
+#+end_src
+
+Or directly from GH:
 #+begin_src elisp
 (package! ob-aider
   :recipe (:host github :repo "levistrope/ob-aider.el"))
 #+end_src
 
-In your =~/.doom.d/config.el= file, add:
+Then in your =~/.doom.d/config.el= file, add:
 #+begin_src elisp
 (use-package! ob-aider
   :after org
@@ -86,22 +87,14 @@ Then run =doom sync= to install the package.
 2. In your Org document, create an Aider source block:
 
    #+begin_example
-   #+begin_src aider :wait yes
+   #+begin_src aider
    Please refactor this function to be more efficient...
    #+end_src
    #+end_example
 
 3. Execute the block with =C-c C-c= to send the prompt to the active Aider session.
 
-4. The response from Aider will be captured and displayed as the result of the source block.
-
-   You can also use `:wait no` to send the prompt without waiting for a response:
-
-   #+begin_example
-   #+begin_src aider :wait no
-   Please refactor this function to be more efficient...
-   #+end_src
-   #+end_example
+4. The prompt will be sent to the Aider buffer. Check the Aider buffer for the response.
 
 ** Troubleshooting
 
