@@ -67,17 +67,9 @@
   :group 'org-babel
   :prefix "ob-aider-")
 
-(defcustom ob-aider-timeout 60
-  "Timeout in seconds for waiting for Aider responses."
-  :group 'ob-aider
-  :type 'integer)
+;; These custom variables are no longer needed
 
-(defcustom ob-aider-response-delay 0.1
-  "Delay in seconds between checks for Aider response completion."
-  :group 'ob-aider
-  :type 'float)
-
-(defcustom ob-aider-default-async nil
+(defcustom ob-aider-default-async t
   "Whether to execute Aider blocks asynchronously by default."
   :group 'ob-aider
   :type 'boolean)
@@ -87,122 +79,39 @@
 When set, this buffer will be used instead of auto-detection."
   :group 'ob-aider
   :type '(choice (const :tag "Auto-detect" nil)
-                 (string :tag "Buffer name")))
+          (string :tag "Buffer name")))
 
 (defun ob-aider-find-buffer ()
   "Find the active Aider conversation buffer.
 Returns nil if no buffer is found."
-  ;; First check if a buffer has been manually specified
-  (if (and ob-aider-buffer (get-buffer ob-aider-buffer))
-      (get-buffer ob-aider-buffer)
-    ;; Otherwise try to auto-detect
-    (let ((buffer-list (buffer-list)))
-      (cl-find-if (lambda (buf)
-                    (with-current-buffer buf
-                      (let ((buf-name (buffer-name buf)))
-                        (and (derived-mode-p 'comint-mode)
-                             (get-buffer-process buf)
-                             (or (string-match-p "\\*aider:" buf-name)
-                                 (string-match-p "aider:/Users/" buf-name)
-                                 (string-match-p "aider" buf-name))))))
-                  buffer-list))))
+  (let ((buffer-list (buffer-list)))
+    (cl-find-if (lambda (buf)
+                  (with-current-buffer buf
+                    (let ((buf-name (buffer-name buf)))
+                      (and (derived-mode-p 'comint-mode)
+                           (get-buffer-process buf)
+                           (or (string-match-p "\\*aider:" buf-name)
+                               (string-match-p "aider:/Users/" buf-name)
+                               (string-match-p "aider" buf-name))))))
+                buffer-list)))
 
-(defun ob-aider-set-buffer (buffer)
-  "Set the Aider BUFFER to use for ob-aider commands."
-  (interactive
-   (list (read-buffer "Select Aider buffer: " nil t
-                      (lambda (buf)
-                        (with-current-buffer buf
-                          (derived-mode-p 'comint-mode))))))
-  (setq ob-aider-buffer buffer)
-  (message "Set ob-aider to use buffer: %s" buffer))
-
-(defun ob-aider-debug-buffers ()
-  "Print debug information about potential Aider buffers."
-  (interactive)
-  (let ((comint-buffers (cl-remove-if-not 
-                         (lambda (buf) 
-                           (with-current-buffer buf 
-                             (derived-mode-p 'comint-mode)))
-                         (buffer-list))))
-    (with-current-buffer (get-buffer-create "*ob-aider-debug*")
-      (erase-buffer)
-      (insert "Comint buffers:\n\n")
-      (dolist (buf comint-buffers)
-        (let ((buf-name (buffer-name buf)))
-          (insert (format "Buffer: %s\n" buf-name))
-          (insert (format "  Process: %s\n" 
-                          (if (get-buffer-process buf) "Yes" "No")))
-          (insert (format "  Contains 'aider': %s\n" 
-                          (if (string-match-p "aider" buf-name) "Yes" "No")))
-          (insert (format "  Matches '*aider:': %s\n" 
-                          (if (string-match-p "\\*aider:" buf-name) "Yes" "No")))
-          (insert (format "  Matches 'aider:/Users/': %s\n" 
-                          (if (string-match-p "aider:/Users/" buf-name) "Yes" "No")))
-          (insert "\n")))
-      (display-buffer (current-buffer)))))
-
-(defun ob-aider-find-response-end-marker (buffer)
-  "Find the end of the most recent response in the Aider BUFFER."
-  (with-current-buffer buffer
-    (save-excursion
-      (goto-char (point-max))
-      (point-marker))))
-
-(defun ob-aider-wait-for-response (buffer start-marker)
-  "Wait for response in BUFFER after START-MARKER for `ob-aider-timeout` secs."
-  (let ((end-time (+ (float-time) ob-aider-timeout))
-        (response-received nil))
-    (while (and (not response-received)
-                (< (float-time) end-time))
-      (with-current-buffer buffer
-        (goto-char (point-max))
-        ;; Check if the prompt indicator has appeared after our start marker
-        (setq response-received (and (> (point) (marker-position start-marker))
-                                     (save-excursion
-                                       (goto-char (point-max))
-                                       (forward-line -1)
-                                       (looking-at-p "^aider> ")))))
-      (unless response-received
-        (sit-for ob-aider-response-delay)
-        ;; Allow user to cancel with C-g
-        (when quit-flag
-          (setq quit-flag nil)
-          (signal 'quit nil))))
-    response-received))
-
-(defun ob-aider-extract-response (buffer start-marker)
-  "Extract the response text from BUFFER after START-MARKER."
-  (with-current-buffer buffer
-    (let ((response-text ""))
-      (save-excursion
-        (goto-char (marker-position start-marker))
-        (forward-line 1) ;; Skip the line with the prompt
-        (let ((response-start (point)))
-          (goto-char (point-max))
-          (forward-line -1) ;; Skip the final prompt line
-          (setq response-text (buffer-substring-no-properties response-start (point)))))
-      response-text)))
+;; These functions are no longer needed since we're not waiting for responses
 
 (defun ob-aider-send-prompt (buffer prompt)
-  "Send PROMPT to Aider BUFFER and return the response."
+  "Send PROMPT to Aider BUFFER and return a message.
+This is a non-blocking implementation that returns immediately."
   (with-current-buffer buffer
     (let ((proc (get-buffer-process buffer)))
       (unless proc
         (error "No process found in Aider buffer"))
-      
+
       ;; Go to the end of the buffer
       (goto-char (point-max))
-      ;; Record the current position as the start of our prompt
-      (let ((start-marker (ob-aider-find-response-end-marker buffer)))
-        ;; Send the prompt
-        (comint-send-string proc (concat prompt "\n"))
-        
-        ;; Wait for response
-        (if (ob-aider-wait-for-response buffer start-marker)
-            ;; Extract and return the response
-            (ob-aider-extract-response buffer start-marker)
-          (error "Timeout waiting for Aider response"))))))
+      ;; Send the prompt
+      (comint-send-string proc (concat prompt "\n"))
+
+      ;; Return a message indicating the prompt was sent
+      "Prompt sent to Aider buffer. Check the buffer for response.")))
 
 ;;;###autoload
 (defun org-babel-execute:aider (body params)
@@ -212,44 +121,46 @@ BODY contains the prompt to send to Aider.
 PARAMS are the parameters specified in the Org source block."
   (unless ob-aider-loaded-flag
     (require 'aider)
-    (setq ob-aider-loaded-flag t))
-  (let ((buffer (ob-aider-find-buffer))
-        (async (cdr (assq :async params))))
-    (if buffer
-        (if async
-            (org-babel-execute:aider-async body params buffer)
-          ;; Synchronous execution
-          (ob-aider-send-prompt buffer body))
-      (user-error "No active Aider conversation buffer found"))))
+    (setq ob-aider-loaded t))
+
+  (let* ((buffer (ob-aider-find-buffer))
+         (async (or (cdr (assq :async params))
+                    ob-aider-default-async)))
+    (unless buffer
+      (user-error "No active Aider conversation buffer found"))
+
+    (if async
+        (org-babel-execute:aider-async body params buffer)
+      ;; "Synchronous" execution - still non-blocking but with a different message
+      (message "Sending prompt to Aider buffer: %s" (buffer-name buffer))
+      (ob-aider-send-prompt buffer body))))
 
 (defun org-babel-execute:aider-async (body params buffer)
   "Execute aider source block asynchronously.
-BODY contains the prompt text, PARAMS are block parameters, BUFFER is the
-aider buffer."
-  (let* ((result-params (cdr (assq :result-params params)))
-         (aider-buffer (or buffer (ob-aider-find-buffer))))
-    (unless aider-buffer
-      (error "No active Aider conversation buffer found"))
-    
-    ;; Return a placeholder for async execution
-    (org-babel-insert-result "Executing asynchronously, see Aider buffer" result-params)
-    
-    ;; Send the prompt without waiting for response
-    (with-current-buffer aider-buffer
-      (let ((proc (get-buffer-process aider-buffer)))
-        (unless proc
-          (error "No process found in Aider buffer %s" (buffer-name aider-buffer)))
-        
-        ;; Go to the end of the buffer
-        (goto-char (point-max))
-        ;; Send the prompt
-        (comint-send-string proc (concat body "\n"))
-        
-        ;; Return the buffer name for reference
-        (message "Sent async prompt to buffer: %s" (buffer-name aider-buffer))))
-    
-    ;; Return nil to prevent displaying internal details
-    nil))
+BODY contains the prompt text, PARAMS are block parameters,
+BUFFER is the aider buffer."
+  (let ((aider-buffer (or buffer (ob-aider-find-buffer))))
+    (if (not aider-buffer)
+        (progn
+          (message "Warning: No active Aider conversation buffer found")
+          "No active Aider conversation buffer found")
+
+      (with-current-buffer aider-buffer
+        (let ((proc (get-buffer-process aider-buffer)))
+          (if (not proc)
+              (progn
+                (message "Warning: No process found in Aider buffer %s" (buffer-name aider-buffer))
+                "No process found in Aider buffer")
+
+            ;; Go to the end of the buffer and send the prompt
+            (goto-char (point-max))
+            ;; Simply send the prompt and don't wait for a response
+            (comint-send-string proc (concat body "\n"))
+
+            ;; Log the buffer being used
+            (message "Sent async prompt to Aider buffer: %s" (buffer-name aider-buffer))
+            ;; Return a placeholder for async execution
+            "Prompt sent to Aider buffer. Check the buffer for response."))))))
 
 
 ;;;###autoload
