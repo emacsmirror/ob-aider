@@ -69,10 +69,7 @@
 
 ;; These custom variables are no longer needed
 
-(defcustom ob-aider-default-async t
-  "Whether to execute Aider blocks asynchronously by default."
-  :group 'ob-aider
-  :type 'boolean)
+;; Removed async default setting as we're removing async functionality
 
 (defcustom ob-aider-buffer nil
   "Manually specified Aider buffer to use.
@@ -123,44 +120,15 @@ PARAMS are the parameters specified in the Org source block."
     (require 'aider)
     (setq ob-aider-loaded t))
 
-  (let* ((buffer (ob-aider-find-buffer))
-         (async (or (cdr (assq :async params))
-                    ob-aider-default-async)))
+  (let ((buffer (ob-aider-find-buffer)))
     (unless buffer
       (user-error "No active Aider conversation buffer found"))
 
-    (if async
-        (org-babel-execute:aider-async body params buffer)
-      ;; "Synchronous" execution - still non-blocking but with a different message
-      (message "Sending prompt to Aider buffer: %s" (buffer-name buffer))
-      (ob-aider-send-prompt buffer body))))
+    ;; Non-blocking execution
+    (message "Sending prompt to Aider buffer: %s" (buffer-name buffer))
+    (ob-aider-send-prompt buffer body)))
 
-(defun org-babel-execute:aider-async (body params buffer)
-  "Execute aider source block asynchronously.
-BODY contains the prompt text, PARAMS are block parameters,
-BUFFER is the aider buffer."
-  (let ((aider-buffer (or buffer (ob-aider-find-buffer))))
-    (if (not aider-buffer)
-        (progn
-          (message "Warning: No active Aider conversation buffer found")
-          "No active Aider conversation buffer found")
-
-      (with-current-buffer aider-buffer
-        (let ((proc (get-buffer-process aider-buffer)))
-          (if (not proc)
-              (progn
-                (message "Warning: No process found in Aider buffer %s" (buffer-name aider-buffer))
-                "No process found in Aider buffer")
-
-            ;; Go to the end of the buffer and send the prompt
-            (goto-char (point-max))
-            ;; Simply send the prompt and don't wait for a response
-            (comint-send-string proc (concat body "\n"))
-
-            ;; Log the buffer being used
-            (message "Sent async prompt to Aider buffer: %s" (buffer-name aider-buffer))
-            ;; Return a placeholder for async execution
-            "Prompt sent to Aider buffer. Check the buffer for response."))))))
+;; Removed async function as it's no longer needed
 
 
 ;;;###autoload
