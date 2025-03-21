@@ -105,11 +105,11 @@ This is a non-blocking implementation that returns immediately."
       ;; Go to the end of the buffer
       (goto-char (point-max))
       
-      ;; Format multi-line prompts properly
-      ;; If the prompt contains newlines, wrap it in curly braces
+      ;; Format multi-line prompts properly using the tag format
+      ;; If the prompt contains newlines, wrap it with {ob-aider and ob-aider}
       (let ((formatted-prompt 
              (if (string-match-p "\n" prompt)
-                 (concat "{\n" prompt "\n}")
+                 (concat "{ob-aider\n" prompt "\nob-aider}")
                prompt)))
         ;; Send the prompt
         (comint-send-string proc (concat formatted-prompt "\n")))
