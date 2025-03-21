@@ -1,4 +1,4 @@
-* ob-aider.el
+* ob-aider.el [[https://melpa.org/#/ob-aider][file:https://melpa.org/packages/ob-aider-badge.svg]]
 
 An Org Babel library for sending prompts to an already running Aider.el comint buffer directly from Org mode source blocks.
 
