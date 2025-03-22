@@ -1,10 +1,10 @@
 * ob-aider.el [[https://melpa.org/#/ob-aider][file:https://melpa.org/packages/ob-aider-badge.svg]]
 
-An Org Babel library for sending prompts to an already running Aider.el comint buffer directly from Org mode source blocks.
+An Org Babel library for sending prompts to an already running Aider.el or Aidermacs buffer directly from Org mode source blocks.
 
 ** Overview
 
-=ob-aider.el= allows you to interact with [[https://github.com/tninja/aider.el][aider.el]] directly from Org mode documents. This enables you to:
+=ob-aider.el= allows you to interact with [[https://github.com/tninja/aider.el][aider.el]] or [[https://github.com/localredhead/aidermacs][Aidermacs]] directly from Org mode documents. This enables you to:
 
 - Document your AI-assisted coding sessions in Org mode
 - Send prompts to Aider from within your Org documents
@@ -17,7 +17,10 @@ An Org Babel library for sending prompts to an already running Aider.el comint b
 
 - Emacs 27.1 or later
 - Org mode 9.4 or later
-- [[https://github.com/tninja/aider.el][aider.el]]
+- One of the following:
+  - [[https://github.com/tninja/aider.el][aider.el]]
+  - [[https://github.com/localredhead/aidermacs][Aidermacs]]
+- For Aidermacs vterm support: [[https://github.com/akermu/emacs-libvterm][vterm]]
 
 ** Installation
 
@@ -82,7 +85,7 @@ Then run =doom sync= to install the package.
 
 ** Usage
 
-1. Start an Aider session using =M-x aider-start= or your preferred method.
+1. Start an Aider session using =M-x aider-start= or an Aidermacs session using =M-x aidermacs=.
 
 2. In your Org document, create an Aider source block:
 
@@ -94,11 +97,11 @@ Then run =doom sync= to install the package.
 
 3. Execute the block with =C-c C-c= to send the prompt to the active Aider session.
 
-4. The prompt will be sent to the Aider buffer. Check the Aider buffer for the response.
+4. The prompt will be sent to the Aider or Aidermacs buffer. Check that buffer for the response.
 
 ** Troubleshooting
 
-- *No active Aider conversation buffer found*: Make sure you have started an Aider session before executing an Aider source block.
+- *No active Aider or Aidermacs conversation buffer found*: Make sure you have started an Aider or Aidermacs session before executing an Aider source block.
 
 ** Use Cases
 

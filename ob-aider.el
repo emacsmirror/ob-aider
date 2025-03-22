@@ -79,7 +79,7 @@ When set, this buffer will be used instead of auto-detection."
           (string :tag "Buffer name")))
 
 (defun ob-aider-find-buffer ()
-  "Find the active Aider conversation buffer.
+  "Find the active Aider or Aidermacs conversation buffer.
 Returns nil if no buffer is found."
   (if ob-aider-buffer
       ;; Use the manually specified buffer if it exists
@@ -89,22 +89,32 @@ Returns nil if no buffer is found."
       (cl-find-if (lambda (buf)
                     (with-current-buffer buf
                       (let ((buf-name (buffer-name buf)))
-                        (and (derived-mode-p 'comint-mode)
-                             (get-buffer-process buf)
-                             (or (string-match-p "\\*aider:" buf-name)
-                                 (string-match-p "aider:/Users/" buf-name)
-                                 (string-match-p "aider" buf-name))))))
+                        (or 
+                         ;; Check for aider.el comint buffers
+                         (and (derived-mode-p 'comint-mode)
+                              (get-buffer-process buf)
+                              (or (string-match-p "\\*aider:" buf-name)
+                                  (string-match-p "aider:/Users/" buf-name)
+                                  (string-match-p "aider" buf-name)))
+                         ;; Check for aidermacs vterm buffers
+                         (and (derived-mode-p 'vterm-mode)
+                              (get-buffer-process buf)
+                              (string-match-p "\\*aidermacs:" buf-name))
+                         ;; Check for aidermacs comint buffers
+                         (and (derived-mode-p 'comint-mode)
+                              (get-buffer-process buf)
+                              (string-match-p "\\*aidermacs:" buf-name))))))
                   buffer-list))))
 
 ;; These functions are no longer needed since we're not waiting for responses
 
 (defun ob-aider-send-prompt (buffer prompt)
-  "Send PROMPT to Aider BUFFER and return a message.
+  "Send PROMPT to Aider or Aidermacs BUFFER and return a message.
 This is a non-blocking implementation that returns immediately."
   (with-current-buffer buffer
     (let ((proc (get-buffer-process buffer)))
       (unless proc
-        (error "No process found in Aider buffer"))
+        (error "No process found in Aider/Aidermacs buffer"))
 
       ;; Go to the end of the buffer
       (goto-char (point-max))
@@ -115,11 +125,18 @@ This is a non-blocking implementation that returns immediately."
              (if (string-match-p "\n" prompt)
                  (concat "{aider\n" prompt "\naider}")
                prompt)))
-        ;; Send the prompt
-        (comint-send-string proc (concat formatted-prompt "\n")))
+        ;; Send the prompt based on the buffer mode
+        (cond
+         ((derived-mode-p 'vterm-mode)
+          ;; For vterm mode (aidermacs)
+          (vterm-send-string formatted-prompt)
+          (vterm-send-return))
+         (t
+          ;; For comint mode (aider.el or aidermacs comint)
+          (comint-send-string proc (concat formatted-prompt "\n")))))
 
       ;; Return a message indicating the prompt was sent
-      "Prompt sent to Aider buffer. Check the buffer for response.")))
+      "Prompt sent to Aider/Aidermacs buffer. Check the buffer for response.")))
 
 
 ;;;###autoload
@@ -129,20 +146,27 @@ This function is called by `org-babel-execute-src-block'.
 BODY contains the prompt to send to Aider.
 PARAMS are the parameters specified in the Org source block."
   (unless ob-aider-loaded
-    (require 'aider)
+    (require 'aider nil t)  ;; Make aider.el optional
     (setq ob-aider-loaded t))
 
   (let* ((buffer (ob-aider-find-buffer))
          (result-params (cdr (assq :result-params params))))
     
     (unless buffer
-      (user-error "No active Aider conversation buffer found"))
+      (user-error "No active Aider or Aidermacs conversation buffer found"))
 
-    (message "Sending prompt to Aider buffer: %s" (buffer-name buffer))
+    ;; Ensure vterm is loaded if we're using a vterm buffer
+    (when (and buffer (with-current-buffer buffer (derived-mode-p 'vterm-mode)))
+      (require 'vterm))
+    
+    (message "Sending prompt to %s buffer: %s" 
+             (if (string-match-p "aidermacs" (buffer-name buffer)) "Aidermacs" "Aider")
+             (buffer-name buffer))
     (ob-aider-send-prompt buffer body)
     
     ;; Return a message
-    "Prompt sent to Aider buffer. Check the buffer for response."))
+    (format "Prompt sent to %s buffer. Check the buffer for response."
+            (if (string-match-p "aidermacs" (buffer-name buffer)) "Aidermacs" "Aider"))))
 
 ;; Removed async function as it's no longer needed
 
