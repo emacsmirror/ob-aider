@@ -127,6 +127,7 @@ This project would not be possible without the following amazing tools:
 
 - [[https://github.com/karthink/gptel][GPTel]] - An elegant and efficient Emacs interface to OpenAI's GPT and other LLMs
 - [[https://github.com/tninja/aider.el][Aider.el]] - Emacs interface for Aider, the AI pair programming tool
+- [[https://github.com/MatthewZMD/aidermacs][Aidermacs]] - Another Emacs interface for Aider
 - [[https://orgmode.org/][Org Mode]] - For its incredible Babel framework that makes this integration possible
 
 Special thanks to the developers of these tools for their contributions to the Emacs ecosystem and for making AI-assisted development more accessible within our favorite editor.
@@ -134,6 +135,7 @@ Special thanks to the developers of these tools for their contributions to the E
 ** Acknowledgments
 
 - [[https://github.com/tninja/aider.el][aider.el]] for the Aider Emacs integration
+- [[https://github.com/MatthewZMD/aidermacs][Aidermacs]] for Aider integration
 - [[https://orgmode.org/worg/org-contrib/babel/][Org Babel]] for the literate programming framework
 - This project was 100% developed with the assistance of Claude 3 Opus and Claude 3 Sonnet, demonstrating the potential of AI-assisted development
 - The entire project was developed using [[https://github.com/karthink/gptel][GPTel]] to write prompts and [[https://github.com/tninja/aider.el][Aider.el]], showcasing the power of AI pair programming
