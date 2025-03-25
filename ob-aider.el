@@ -1,4 +1,4 @@
-;;; ob-aider.el --- Org Babel functions for Aider.el integration -*- lexical-binding: t; -*-
+;;; ob-aider.el --- Org Babel functions for Aider.el & Aidermacs integration -*- lexical-binding: t; -*-
 
 ;; Author: Levi Strope <levi.strope@gmail.com>
 ;; Maintainer: Levi Strope <levi.strope@gmail.com>
@@ -35,7 +35,7 @@
 ;;
 ;; - Emacs 27.1 or later
 ;; - Org mode 9.4 or later
-;; - aider.el (https://github.com/tninja/aider.el)
+;; - aider.el (https://github.com/tninja/aider.el) or Aidermacs (https://github.com/MatthewZMD/aidermacs)
 
 ;; Usage:
 ;;
